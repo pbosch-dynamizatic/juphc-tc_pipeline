@@ -7,12 +7,13 @@ spec:
     - name: pipeline-workspace
     - name: dockerconfig-ws
   params:
-    - name: build-image
     - name: repo-url
     - name: app-name
+      default: tax-calculator
     - name: branch
       default: main
   tasks:
+  
     - name: init
       workspaces:
         - name: source
@@ -28,13 +29,12 @@ spec:
         name: git-clone
         kind: ClusterTask
       params:
-        - name: url
-          value: $(params.repo-url)
-        - name: revision
-          value: $(params.branch)
+      - name: url
+        value: $(params.repo-url)
+      - name: revision
+        value: $(params.branch)
       runAfter:
-        - init
-
+        - init      
     - name: npminstall
       workspaces:
         - name: source
@@ -43,7 +43,6 @@ spec:
         name: npm
       runAfter:
         - clone
-
     - name: tests
       workspaces:
         - name: source
@@ -52,7 +51,6 @@ spec:
         name: jasmine
       runAfter:
         - npminstall
-
     - name: build
       workspaces:
         - name: source
@@ -63,7 +61,7 @@ spec:
         name: buildah
         kind: ClusterTask
       params:
-        - name: IMAGE
-          value: "us.icr.io/$(context.pipelineRun.namespace)/$(params.app-name)"
+      - name: IMAGE
+        value: "us.icr.io/$(context.pipelineRun.namespace)/$(params.app-name)"
       runAfter:
         - tests
